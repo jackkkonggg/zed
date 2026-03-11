@@ -20,7 +20,7 @@ use livekit::webrtc::{
     video_source::{RtcVideoSource, VideoResolution, native::NativeVideoSource},
     video_stream::native::NativeVideoStream,
 };
-use log::info;
+use log::{debug, info};
 use parking_lot::Mutex;
 use rodio::Source;
 use serde::{Deserialize, Serialize};
@@ -270,6 +270,7 @@ impl AudioStack {
             let mut device_change_listener = DeviceChangeListener::new(false)?;
             let (output_device, output_config) =
                 crate::default_device(false, output_audio_device.as_ref())?;
+            info!("Output config: {output_config:?}");
             let (end_on_drop_tx, end_on_drop_rx) = std::sync::mpsc::channel::<()>();
             let mixer = mixer.clone();
             let apm = apm.clone();
@@ -306,6 +307,7 @@ impl AudioStack {
                                         output_config.sample_rate(),
                                     );
                                     buf = sampled.to_vec();
+                                    debug!("buf.len(): {:?}", buf.len());
                                     apm.lock()
                                         .process_reverse_stream(
                                             &mut buf,
